@@ -197,7 +197,7 @@ void FunctionParamsUsagePass::print(raw_ostream &OS, const Module *M) const {
   } else {
     OS << "Possible risky stores found: \n";
     for (auto RS : currentRiskyStores) {
-      OS << "\t" << "Value deriving from " << *(std::get<0>(RS)) << " used in " << *(std::get<1>(RS)) << "\n";
+	    OS << "\t" << "Value deriving from " << *(RS->getPointedValue()) << " used in " << (RS->getStoreInst()) << "\n";
     }
   }
 }
@@ -436,7 +436,7 @@ bool FunctionParamsUsagePass::isaRiskyStore(const DefUse &DU) const {
 bool FunctionParamsUsagePass::containsRiskyStore(std::vector<RiskyStore>& vector, const StoreInst* store) const {
 	const StoreInst* currStore = nullptr;
 	for(auto RS : vector) {
-		currStore = std::get<1>(RS);
+		currStore = RS->getStoreInst();
 		if(currStore == store)
 			return true;
 	}
@@ -517,7 +517,7 @@ void FunctionParamsUsagePass::dumpAnalysis(raw_fd_ostream &FOS, Function &F) con
 	} else {
 		FOS << "Possible risky stores found: \n";
 		for (auto RS : currentRiskyStores) {
-			FOS << "\t" << "Value deriving from " << *(std::get<0>(RS)) << " used in " << *(std::get<1>(RS)) << "\n";
+			FOS << "\t" << "Value deriving from " << *(RS->getPointedValue()) << " used in " << *(RS->getStoreInst()) << "\n";
 		}
 	}
 }
