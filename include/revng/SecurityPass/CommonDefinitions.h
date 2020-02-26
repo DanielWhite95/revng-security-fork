@@ -39,8 +39,48 @@ namespace revng {
 	using DefUse = std::pair<const User*, const Value*>;
 	using DefUseChain = std::vector<DefUse>;
 	using VariableFlow = std::pair<const Value*, std::vector<DefUseChain>>;
-	using RiskyStore = std::pair<const Value*, const StoreInst*>;
 	using VulnerableLoopItem = std::pair<std::vector<const Instruction*>, std::vector<const RiskyStore*>>;
+
+	struct RiskyStore {
+	public:
+		explicit RiskyStore(const Value* V, const StoreInst* S) {
+			pointedValue = V;
+			store = S;
+			originalBinaryAddress = findAddress(dyn_cast<Instruction>(S));
+		}
+		uint64_t originalBinaryAddress = 0;
+		const Value* pointedValue;
+		const StoreInst* store;
+		inline const uint64_t getOriginalAddress() const {return originalBinaryAddress; };
+ 	 	inline const Value getPointedValue() const {return pointedValue; };
+		inline const StoreInst getStoreInst() const { return store; };
+
+	private:
+		inline int findAddress(const Instruction* I) {
+			const Instruction* it = I->getNextNode();
+			while(it && !(it->isTerminator())) {
+				if(!isa<CallInst>(it)) {
+					it = it->getNextNode();
+					continue;
+				}
+				const CallInst* ci = dyn_cast<CallInst>(it);
+				const Value* calledV = ci->getCalledValue();
+				if(!(calledV && calledV->getName().compareTo("newpc") == 0)) {
+					it = it->getNextNode();
+					continue;
+				}
+				const Value* op = ci->getArgOperand(1);
+				if(!(op && isa<ConstantInt>(op))) {
+					it = it->getNextNode();
+					continue;
+				}
+				const ConstantInt* const_op = dyn_cast<ConstantInt>(op);
+				return const_op->getZExtValue();
+			}
+		        return 0;
+		}
+	}
+
 
 
 

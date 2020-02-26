@@ -279,13 +279,16 @@ json::Object LoopDependenciesPass::toJSON() const {
 		json::Array rsVal;
 		get_print_stream(2) << "Dumping " << std::get<1>(*vlItem).size() << " branches for "<< std::get<0>(VL) << " ...\n";
 		for( auto RS : std::get<1>(*vlItem)) {
-			const Value* VAL = std::get<0>(*RS);
-			const StoreInst* ST = std::get<1>(*RS);
+			json::Object stObj;
+			const Value* VAL = RS->getPointedValue();
+			const StoreInst* ST = RS->getStoreInst();
+			const uint64_t origAddr = RS->getOriginalAddress();
 			assert(ST != nullptr && VAL != nullptr && "Null risky store detected");
 			std::string serializedST;
 			serializedST = formatv("{0}",  *ST);
 			json::Value stVal(serializedST);
-			rsVal.push_back(stVal);
+			stObj.try_emplace("storeInst", stVal);
+			rsVal.push_back(json::Value(stObj));
 		}
 		vlObj.try_emplace(std::move(rsKey), std::move(rsVal));
 		vlsVal.try_emplace(std::move(vlKey), std::move(vlObj));
