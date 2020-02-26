@@ -114,11 +114,11 @@ bool LoopDependenciesPass::analyzeLoop(const Loop* L, FunctionParamsUsagePass& F
 	  errs() << "Analyzing Risky stores of Function Params Usage pass\n";
 	  for(const BasicBlock* BB: L->getBlocks() ) {
 		  errs() << "Searching stores inside Basic Block " << BB->getName() << "\n";
-		  for( RiskyStore R: fpuRiskyStores) {
-			  if(std::get<1>(R)->getParent() == BB ) {
-				  std::get<1>(R)->print(errs());
-				  errs() << " is inside the Basic block!\n";
-				  RiskyStore *clonedStore = new RiskyStore(std::get<0>(R), std::get<1>(R));
+		  for( RiskyStore& R: fpuRiskyStores) {
+			  if(R.getStoreInst()->getParent() == BB ) {
+				  R.getStoreInst()->print(get_print_stream(3));
+				  get_print_stream(3) << " is inside the Basic block!\n";
+				  RiskyStore *clonedStore = new RiskyStore(R);
 				  riskyStores.push_back(clonedStore);
 				  loopStores++;
 				  FilteredStores++;

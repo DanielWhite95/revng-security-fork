@@ -877,7 +877,7 @@ bool FunctionScraper::isaRiskyStore(const DefUse &DU) const {
 bool FunctionScraper::containsRiskyStore(std::vector<RiskyStore>& vector, const StoreInst* store) const {
 	const StoreInst* currStore = nullptr;
 	for(auto RS : vector) {
-		currStore = RS->getStoreInst();
+		currStore = RS.getStoreInst();
 		if(currStore == store)
 			return true;
 	}

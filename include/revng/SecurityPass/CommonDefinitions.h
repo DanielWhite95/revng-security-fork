@@ -48,6 +48,13 @@ namespace revng {
 			store = S;
 			originalBinaryAddress = findAddress(dyn_cast<Instruction>(S));
 		}
+		RiskyStore(const RiskyStore& copy) {
+			pointedValue = copy.getPointedValue();
+			store = copy.getStoreInst();
+			originalBinaryAddress = copy.getOriginalAddress();
+
+
+		};
 		uint64_t originalBinaryAddress = 0;
 		const Value* pointedValue;
 		const StoreInst* store;

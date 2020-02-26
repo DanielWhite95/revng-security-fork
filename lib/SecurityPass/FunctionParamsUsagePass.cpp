@@ -436,7 +436,7 @@ bool FunctionParamsUsagePass::isaRiskyStore(const DefUse &DU) const {
 bool FunctionParamsUsagePass::containsRiskyStore(std::vector<RiskyStore>& vector, const StoreInst* store) const {
 	const StoreInst* currStore = nullptr;
 	for(auto RS : vector) {
-		currStore = RS->getStoreInst();
+		currStore = RS.getStoreInst();
 		if(currStore == store)
 			return true;
 	}
