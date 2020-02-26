@@ -82,9 +82,9 @@ namespace revng {
 					continue;
 				}
 				const ConstantInt* const_op = dyn_cast<ConstantInt>(op);
-				get_print_stream(3) << "Found original address in ";
-				ci->print(get_print_stream(3));
-				get_print_stream(3) << "\n";
+			        errs() << "Found original address in ";
+				ci->print(errs());
+			        errs() << "\n";
 				return const_op->getZExtValue();
 			}
 		        return 0;
