@@ -365,8 +365,16 @@ JumpTargetManager::readFromPointer(Constant *Pointer, BinaryFile::Endianess E) {
   Type *LoadedType = Pointer->getType()->getPointerElementType();
   const DataLayout &DL = TheModule.getDataLayout();
   unsigned LoadSize = DL.getTypeSizeInBits(LoadedType) / 8;
-  uint64_t LoadAddress = getZExtValue(cast<ConstantInt>(skipCasts(Pointer)),
-                                      DL);
+  // If the oracle gives us a constant null pointer, manually set the load
+	  // address to 0
+  Value *RealPointer = skipCasts(Pointer);
+  uint64_t LoadAddress;
+  if (isa<ConstantPointerNull>(RealPointer)) {
+    LoadAddress = 0;
+  } else {
+	    LoadAddress = getZExtValue(cast<ConstantInt>(RealPointer), DL);
+  }
+
   UnusedCodePointers.erase(LoadAddress);
   registerReadRange(LoadAddress, LoadSize);
 
