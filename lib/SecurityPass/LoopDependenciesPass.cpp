@@ -282,7 +282,7 @@ json::Object LoopDependenciesPass::toJSON() const {
 			json::Object stObj;
 			const Value* VAL = RS->getPointedValue();
 			const StoreInst* ST = RS->getStoreInst();
-			const uint64_t origAddr = RS->getOriginalAddress();
+			const int origAddr = RS->getOriginalAddress();
 			assert(ST != nullptr && VAL != nullptr && "Null risky store detected");
 			std::string serializedST;
 			serializedST = formatv("{0}",  *VAL);
