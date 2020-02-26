@@ -39,7 +39,7 @@ namespace revng {
 	using DefUse = std::pair<const User*, const Value*>;
 	using DefUseChain = std::vector<DefUse>;
 	using VariableFlow = std::pair<const Value*, std::vector<DefUseChain>>;
-	using VulnerableLoopItem = std::pair<std::vector<const Instruction*>, std::vector<const RiskyStore*>>;
+
 
 	struct RiskyStore {
 	public:
@@ -52,8 +52,8 @@ namespace revng {
 		const Value* pointedValue;
 		const StoreInst* store;
 		inline const uint64_t getOriginalAddress() const {return originalBinaryAddress; };
- 	 	inline const Value getPointedValue() const {return pointedValue; };
-		inline const StoreInst getStoreInst() const { return store; };
+ 	 	inline const Value* getPointedValue() const {return pointedValue; };
+		inline const StoreInst* getStoreInst() const { return store; };
 
 	private:
 		inline int findAddress(const Instruction* I) {
@@ -65,7 +65,7 @@ namespace revng {
 				}
 				const CallInst* ci = dyn_cast<CallInst>(it);
 				const Value* calledV = ci->getCalledValue();
-				if(!(calledV && calledV->getName().compareTo("newpc") == 0)) {
+				if(!(calledV && calledV->getName().equals("newpc"))) {
 					it = it->getNextNode();
 					continue;
 				}
@@ -79,8 +79,9 @@ namespace revng {
 			}
 		        return 0;
 		}
-	}
+	};
 
+	using VulnerableLoopItem = std::pair<std::vector<const Instruction*>, std::vector<const RiskyStore*>>;
 
 
 

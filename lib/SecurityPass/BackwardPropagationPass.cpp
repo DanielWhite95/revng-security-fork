@@ -726,7 +726,7 @@ void FunctionScraper::print(raw_ostream &OS, const Module *M) const {
 	} else {
 		OS << "Possible risky stores found: \n";
 		for (auto RS : currentRiskyStores) {
-			OS << "\t" << "Value deriving from " << *(RS->getPointedValue()) << " used in " << *(RS->getStoreInst()) << "\n";
+			OS << "\t" << "Value deriving from " << *(RS.getPointedValue()) << " used in " << *(RS.getStoreInst()) << "\n";
 		}
 	}
 }
