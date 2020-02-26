@@ -76,7 +76,7 @@ namespace revng {
 					it = it->getNextNode();
 					continue;
 				}
-				const Value* op = ci->getArgOperand(1);
+				const Value* op = ci->getArgOperand(0);
 				if(!(op && isa<ConstantInt>(op))) {
 					it = it->getNextNode();
 					continue;
