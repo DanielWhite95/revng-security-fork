@@ -52,15 +52,16 @@ namespace revng {
 			pointedValue = copy.getPointedValue();
 			store = copy.getStoreInst();
 			originalBinaryAddress = copy.getOriginalAddress();
-
-
 		};
 		uint64_t originalBinaryAddress = 0;
+		int instOffset = 0;
 		const Value* pointedValue;
 		const StoreInst* store;
+
 		inline const uint64_t getOriginalAddress() const {return originalBinaryAddress; };
  	 	inline const Value* getPointedValue() const {return pointedValue; };
 		inline const StoreInst* getStoreInst() const { return store; };
+		inline const int getInstOffset() const { return instOffset; }
 
 	private:
 		inline int findAddress(const Instruction* I) {
@@ -68,17 +69,20 @@ namespace revng {
 			while(it && !(it->isTerminator())) {
 				if(!isa<CallInst>(it)) {
 					it = it->getNextNode();
+					instOffset++;
 					continue;
 				}
 				const CallInst* ci = dyn_cast<CallInst>(it);
 				const Value* calledV = ci->getCalledValue();
 				if(!(calledV && calledV->getName().equals("newpc"))) {
 					it = it->getNextNode();
+					instOffset++;
 					continue;
 				}
 				const Value* op = ci->getArgOperand(0);
 				if(!(op && isa<ConstantInt>(op))) {
 					it = it->getNextNode();
+					instOffset++;
 					continue;
 				}
 				const ConstantInt* const_op = dyn_cast<ConstantInt>(op);
