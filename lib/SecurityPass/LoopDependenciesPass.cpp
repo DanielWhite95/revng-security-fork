@@ -291,7 +291,8 @@ json::Object LoopDependenciesPass::toJSON() const {
 			serializedST = formatv("{0}",  *ST);
 			json::Value stInst(serializedST);
 			stObj.try_emplace("storeInst", std::move(stInst));
-		        json::Value stAddr(origAddr);
+			serializedST = formatv("{0:x}",  origAddr);
+		        json::Value stAddr(serializedST);
 			stObj.try_emplace("binAddr", std::move(stAddr));
 			rsVal.push_back(json::Value(std::move(stObj)));
 		}
