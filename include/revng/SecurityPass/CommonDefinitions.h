@@ -52,6 +52,7 @@ namespace revng {
 			pointedValue = copy.getPointedValue();
 			store = copy.getStoreInst();
 			originalBinaryAddress = copy.getOriginalAddress();
+			instOffset = copy.getInstOffset();
 		};
 		uint64_t originalBinaryAddress = 0;
 		int instOffset = 0;
@@ -119,9 +120,6 @@ namespace revng {
 	};
 
 	using StackVarFlow = std::pair<const VirtualStackParam* , std::vector<DefUseChain>>;
-
-
-
 	struct RevngFunctionParamsPass;
 	struct RevngFunctionScraper;
 
@@ -157,8 +155,6 @@ namespace revng {
 		}
 
 	}
-
-
 	inline bool isaSkippedFunction(const Function*F) {
 		if( F->getName().startswith("bb.__")) {
 			return true;
@@ -243,11 +239,7 @@ namespace revng {
 			}
 		} while( !nextValues.empty() );
 		return false;
-
 	}
-
-
-
 }
 
 #endif // COMMON_DEFINITIONS_H
