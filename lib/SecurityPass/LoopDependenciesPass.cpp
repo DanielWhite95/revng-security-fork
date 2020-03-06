@@ -47,7 +47,7 @@ bool LoopDependenciesPass::runOnFunction(Function &F) {
 	  LDPSkippedFunctions++;
 	  errs() << "Not a function in the scope of analysis, skipping...\n" ;
 	  return false;
-	}if (!isMarked(&F) && OnlyMarkedFuns) {
+	}if (!isMarked(&F) && OnlyMarkedFunctions) {
 		LDPSkippedFunctions++;
 		errs() << "Function not reached by any input, skipping analysis ...\n";
 		return false;
