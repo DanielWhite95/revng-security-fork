@@ -114,7 +114,7 @@ bool SecurityWrapperPass::runOnFunction(Function &F) {
 		get_print_stream(3) << "Skipping non-revng function " << F.getName() << "...\n";
 		return false;
 	}
-	if ( isaSkippedFunction(&F) || (!isMarked(&F) && only_marked_funs) ) {
+	if ( isaSkippedFunction(&F) || (!isMarked(&F) && OnlyMarkedFuns) ) {
 		get_print_stream(3) << "Skipping not marked function " << F.getName() << "...\n";
 		return false;
 	}

@@ -46,7 +46,7 @@ bool FunctionParamsUsagePass::runOnFunction(Function &F) {
     return false;
   }
 
-  if (!isMarked(&F) && only_marked_funs) {
+  if (!isMarked(&F) && OnlyMarkedFuns) {
 	  FPUSkippedFunctions++;
 	  get_print_stream(1) << "Function not rached by input, skipping FPU...\n";
 	  return false;
