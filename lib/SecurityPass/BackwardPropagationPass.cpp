@@ -434,7 +434,8 @@ void BackwardPropagationPass::markPassFunction(Function* F, bool status, MarkedF
 	MarkedFunctions++;
 	auto searchIt = taintAnalysis.find(F);
 	if (searchIt == taintAnalysis.end() ) {
-		taintAnalysis.emplace(F, std::vector<MarkedFunInfo>(mfInfo));
+		std::vector<MarkedFunInfo> newValue = { mfInfo };
+		taintAnalysis.emplace(F, newValue);
 	} else {
 		searchIt->second.push_back(mfInfo);
 	}
