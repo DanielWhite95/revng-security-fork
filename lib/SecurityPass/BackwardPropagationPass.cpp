@@ -92,7 +92,7 @@ bool BackwardPropagationPass::doInitialization(Module &M) {
 		auto callers = findCallersInCG(inF);
 		for( Function* F: callers ) {
 			nextCallers->emplace(F, mfInfo);
-			markPassFunction(F, true, inF);
+			markPassFunction(F, true, mfInfo);
 		}
 	}
 	printMarkedFunctions();
@@ -394,10 +394,6 @@ const Value*  BackwardPropagationPass::searchForReturnRegister(Function &F, cons
 		}
 	} while( itBB != F.end() );
 	return nullptr;
-
-
-
-
 }
 
 
@@ -429,16 +425,16 @@ void BackwardPropagationPass::markInputFunction(Function* F) {
 }
 
 
-void BackwardPropagationPass::markPassFunction(Function* F, bool status, Function *inputFunction) {
+void BackwardPropagationPass::markPassFunction(Function* F, bool status, MarkedFunInfo &mfInfo) {
 	LLVMContext& C = F->getContext();
       	MDNode* N = nullptr;
 	std::string formattedStatus =  formatv("{0}", status);
 	N = MDNode::get(C, MDString::get(C, formattedStatus));
 	F->setMetadata(REVNG_SECURITY_MARKED_MD, N);
 	MarkedFunctions++;
-	auto searchIt = taintedAnalysis.find(F);
-	if (searchIt == taintedAnalysis.end() ) {
-		taintedAnalysis.emplace(F, std::vector<Function*>(inputFunction));
+	auto searchIt = taintAnalysis.find(F);
+	if (searchIt == taintAnalysis.end() ) {
+		taintAnalysis.emplace(F, std::vector<MarkedFunInfo>(mfInfo));
 	} else {
 		searchIt->second.push_back(inputFunction);
 	}
@@ -535,7 +531,7 @@ bool BackwardPropagationPass::addMarkedFunction(Function *markedF, int argIndex,
 				continue;
 			}
 			newCallers->emplace(newCaller, newInfo);
-			markPassFunction(newCaller, true, markedF);
+			markPassFunction(newCaller, true, newInfo);
 		}
 	}
 	return true;

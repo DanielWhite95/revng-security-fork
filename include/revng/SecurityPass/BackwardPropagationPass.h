@@ -163,7 +163,7 @@ namespace revng {
 		const Value* getInputValue(Function &F, MarkedFunInfo& mf);
                 void markInputFunctions(Module &M);
 		void markInputFunction(Function* F);
-		void markPassFunction(Function* F, bool, Function* inputF);
+		void markPassFunction(Function* F, bool, MarkedFunInfo &mfInfo);
 		void parseInputFiles(Module &M);
 		std::vector<Function*> findCallersInCG(Function *F);
 		Function* searchFunctionByAddress(Module &M, std::string address);
@@ -183,7 +183,7 @@ namespace revng {
 
 		bool addMarkedFunction(Function *F, int argIndex, std::string argName, std::map<Function*,MarkedFunInfo>* );
 
-		std::map<Function*, std::vector<Function*>> taintAnalysis;
+		std::map<Function*, std::vector<MarkedFunInfo>> taintAnalysis;
   };
 
 
