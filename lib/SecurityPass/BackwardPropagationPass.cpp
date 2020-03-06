@@ -535,7 +535,7 @@ bool BackwardPropagationPass::addMarkedFunction(Function *markedF, int argIndex,
 				continue;
 			}
 			newCallers->emplace(newCaller, newInfo);
-			markPassFunction(newCaller, true);
+			markPassFunction(newCaller, true, markedF);
 		}
 	}
 	return true;
