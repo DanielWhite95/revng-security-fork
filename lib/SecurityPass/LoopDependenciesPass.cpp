@@ -283,6 +283,7 @@ json::Object LoopDependenciesPass::toJSON() const {
 			const Value* VAL = RS->getPointedValue();
 			const StoreInst* ST = RS->getStoreInst();
 			const int origAddr = RS->getOriginalAddress();
+			const int offset = RS->getInstOffset();
 			assert(ST != nullptr && VAL != nullptr && "Null risky store detected");
 			std::string serializedST;
 			serializedST = formatv("{0}",  *VAL);
@@ -294,8 +295,8 @@ json::Object LoopDependenciesPass::toJSON() const {
 			serializedST = formatv("{0:x}",  origAddr);
 		        json::Value stAddr(serializedST);
 			stObj.try_emplace("binaryAddress", std::move(stAddr));
-			json::Value instOffset(RS->getInstOffset());
-			stObj.try_emplace("instructionOffset", std::move(stAddr));
+			json::Value instOffset(offset);
+			stObj.try_emplace("instructionOffset", std::move(instOffset));
 			rsVal.push_back(json::Value(std::move(stObj)));
 		}
 		vlObj.try_emplace(std::move(rsKey), std::move(rsVal));
