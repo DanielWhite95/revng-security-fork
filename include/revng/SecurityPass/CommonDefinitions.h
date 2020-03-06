@@ -40,6 +40,7 @@ namespace revng {
 	using DefUseChain = std::vector<DefUse>;
 	using VariableFlow = std::pair<const Value*, std::vector<DefUseChain>>;
 
+	extern cl::opt<bool> OnlyMarkedFunctions;
 
 	struct RiskyStore {
 	public:
@@ -71,7 +72,7 @@ namespace revng {
 					it = it->getNextNode();
 					instOffset++;
 					continue;
-				}
+ 				}
 				const CallInst* ci = dyn_cast<CallInst>(it);
 				const Value* calledV = ci->getCalledValue();
 				if(!(calledV && calledV->getName().equals("newpc"))) {
