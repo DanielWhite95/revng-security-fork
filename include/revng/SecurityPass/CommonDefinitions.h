@@ -27,14 +27,13 @@
 #define REVNG_INPUT_POS_MD "revng.dm.inputgen.argpos" // STRING
 #define REVNG_INPUT_TOANALYZE_MD "revng.dm.inputgen.toanalyze" // BOOLEAN
 #define REVNG_SECURITY_MARKED_MD "revng.dm.inputgen.mark" // BOOL
+#define REVNG_SECURITY_MARKED_CALLERS_MD "revng.dm.inputgen.callers"
 
 #define MAX_PASS_VERBOSITY_LEVEL 3
 
 using namespace llvm;
 
 namespace revng {
-	static bool only_marked_funs = false;
-
 
 	using DefUse = std::pair<const User*, const Value*>;
 	using DefUseChain = std::vector<DefUse>;

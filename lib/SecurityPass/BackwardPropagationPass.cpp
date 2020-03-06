@@ -83,18 +83,17 @@ bool BackwardPropagationPass::doInitialization(Module &M) {
 	markInputFunctions(M);
 	nextCallers = new std::map<Function*, MarkedFunInfo>();
 	for(auto P : markedFunctions) {
-		Function *F = std::get<0>(P);
+		Function *inF = std::get<0>(P);
 		MarkedFunInfo &mfInfo = std::get<1>(P) ;
-		if( F == nullptr) {
-			get_print_stream(3) << "ERROR! Null function in markedFunctions inside do initialization!!!\n";
+		if( inF == nullptr) {
+			get_print_stream(3) << "ERROR! Null function in marked Functions inside do initialization!!!\n";
 			continue;
 		}
-		auto callers = findCallersInCG(F);
+		auto callers = findCallersInCG(inF);
 		for( Function* F: callers ) {
 			nextCallers->emplace(F, mfInfo);
-			markPassFunction(F, true);
+			markPassFunction(F, true, inF);
 		}
-
 	}
 	printMarkedFunctions();
 	printNextCallers();
@@ -417,10 +416,6 @@ int BackwardPropagationPass::getArgIndex(Function &F, const Value* V) {
 	return -1;
 }
 
-void BackwardPropagationPass::markCaller(Function* caller, int argPos) {
-	markPassFunction(caller, true);
-}
-
 
 void BackwardPropagationPass::markInputFunction(Function* F) {
 	LLVMContext& C = F->getContext();
@@ -434,13 +429,19 @@ void BackwardPropagationPass::markInputFunction(Function* F) {
 }
 
 
-void BackwardPropagationPass::markPassFunction(Function* F, bool status) {
+void BackwardPropagationPass::markPassFunction(Function* F, bool status, Function *inputFunction) {
 	LLVMContext& C = F->getContext();
       	MDNode* N = nullptr;
 	std::string formattedStatus =  formatv("{0}", status);
 	N = MDNode::get(C, MDString::get(C, formattedStatus));
 	F->setMetadata(REVNG_SECURITY_MARKED_MD, N);
 	MarkedFunctions++;
+	auto searchIt = taintedAnalysis.find(F);
+	if (searchIt == taintedAnalysis.end() ) {
+		taintedAnalysis.emplace(F, std::vector<Function*>(inputFunction));
+	} else {
+		searchIt->second.push_back(inputFunction);
+	}
 }
 
 const Value* BackwardPropagationPass::getInputValue(Function &F, MarkedFunInfo &mfInfo) {
