@@ -241,8 +241,7 @@ std::vector<Function*> BackwardPropagationPass::findCallersInCG(Function *F) {
 }
 
 bool BackwardPropagationPass::doFinalization(Module &M) {
-	printMarkedFunctions();
-	printNextCallers();
+	printTaintAnalysis();
 	return false;
 }
 
@@ -566,6 +565,27 @@ void BackwardPropagationPass::printNextCallers() {
 
 	}
 }
+
+void BackwardPropagationPass::printTaintAnalysis() {
+
+	// // debug
+	get_print_stream(3) << "Taint analysis result: \n";
+	for(auto P : taintAnalysis) {
+		Function* f = std::get<0>(P);
+		get_print_stream(3) << "- " << f->getName() << " reached by: ";
+		for (auto mf : std::get<1>(P)) {
+			get_print_stream(3) << " <"
+					    << std::get<0>(mf)
+				            << ","
+				            << std::get<1>(mf)
+				            << ","
+				            << std::get<2>(mf)
+				            << ">,";
+		}
+		get_print_stream(3) << "\n";
+	}
+}
+
 
 
 FunctionScraper::FunctionScraper() {

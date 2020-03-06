@@ -167,6 +167,7 @@ namespace revng {
 		void parseInputFiles(Module &M);
 		std::vector<Function*> findCallersInCG(Function *F);
 		Function* searchFunctionByAddress(Module &M, std::string address);
+		void printTaintAnalysis();
 
 		// Check if the values is a function argument and returns its index,
 		// otherwise returns a negative number
