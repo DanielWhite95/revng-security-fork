@@ -2,6 +2,6 @@
 
 
 using namespace llvm;
-using namespace revng;
 
-cl::opt<bool> OnlyMarkedFunctions("only-marked-funs", cl::desc("Analyze only functions reached by inputs"));
+
+static cl::opt<bool> revng::OnlyMarkedFunctions("only-marked-funs", cl::desc("Analyze only functions reached by inputs"));
