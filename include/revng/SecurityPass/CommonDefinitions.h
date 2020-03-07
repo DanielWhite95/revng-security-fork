@@ -26,20 +26,21 @@
 #define REVNG_INPUT_NAME_MD "revng.dm.inputgen.called" // STRING
 #define REVNG_INPUT_POS_MD "revng.dm.inputgen.argpos" // STRING
 #define REVNG_INPUT_TOANALYZE_MD "revng.dm.inputgen.toanalyze" // BOOLEAN
+#define REVNG_SECURITY_MARKED_CALLERS_MD "revng.dm.inputgen.callers" // list of strings
 #define REVNG_SECURITY_MARKED_MD "revng.dm.inputgen.mark" // BOOL
-#define REVNG_SECURITY_MARKED_CALLERS_MD "revng.dm.inputgen.callers"
 
 #define MAX_PASS_VERBOSITY_LEVEL 3
 
 using namespace llvm;
 
 namespace revng {
+	static bool only_marked_funs = false;
+
 
 	using DefUse = std::pair<const User*, const Value*>;
 	using DefUseChain = std::vector<DefUse>;
 	using VariableFlow = std::pair<const Value*, std::vector<DefUseChain>>;
 
-	extern cl::opt<bool> OnlyMarkedFunctions;
 
 	struct RiskyStore {
 	public:
@@ -52,7 +53,6 @@ namespace revng {
 			pointedValue = copy.getPointedValue();
 			store = copy.getStoreInst();
 			originalBinaryAddress = copy.getOriginalAddress();
-			instOffset = copy.getInstOffset();
 		};
 		uint64_t originalBinaryAddress = 0;
 		int instOffset = 0;
@@ -72,7 +72,7 @@ namespace revng {
 					it = it->getNextNode();
 					instOffset++;
 					continue;
- 				}
+				}
 				const CallInst* ci = dyn_cast<CallInst>(it);
 				const Value* calledV = ci->getCalledValue();
 				if(!(calledV && calledV->getName().equals("newpc"))) {
@@ -120,6 +120,9 @@ namespace revng {
 	};
 
 	using StackVarFlow = std::pair<const VirtualStackParam* , std::vector<DefUseChain>>;
+
+
+
 	struct RevngFunctionParamsPass;
 	struct RevngFunctionScraper;
 
@@ -155,6 +158,8 @@ namespace revng {
 		}
 
 	}
+
+
 	inline bool isaSkippedFunction(const Function*F) {
 		if( F->getName().startswith("bb.__")) {
 			return true;
@@ -239,7 +244,11 @@ namespace revng {
 			}
 		} while( !nextValues.empty() );
 		return false;
+
 	}
+
+
+
 }
 
 #endif // COMMON_DEFINITIONS_H
