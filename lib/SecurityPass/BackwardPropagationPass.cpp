@@ -269,8 +269,8 @@ bool BackwardPropagationPass::doFinalization(Module &M) {
 	json::Object output;
 	json::ObjectKey taintKey("taintAnalysis");
 	json::Object taintObj = buildTaintJSON();
-	output.try_emplace(taintKey, std::move(taintObj);
-	json::Value valuewrp(output);
+	output.try_emplace(taintKey, std::move(taintObj));
+	json::Value valuewrp(std::move(output));
 	std::error_code FileError;
 	StringRef FileName( TaintAnalysisFile.c_str());
 	raw_fd_ostream Output(FileName, FileError, sys::fs::OpenFlags::OF_None);
