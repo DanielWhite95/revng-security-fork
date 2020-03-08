@@ -168,6 +168,7 @@ namespace revng {
 		std::vector<Function*> findCallersInCG(Function *F);
 		Function* searchFunctionByAddress(Module &M, std::string address);
 		void printTaintAnalysis();
+		json::Object buildTaintJSON();
 
 		// Check if the values is a function argument and returns its index,
 		// otherwise returns a negative number

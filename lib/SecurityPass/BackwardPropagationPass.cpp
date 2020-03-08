@@ -10,6 +10,9 @@ cl::opt<std::string> MarkedFunctionsInputFile("input-functions-csv", cl::desc("S
 
 cl::opt<std::string> RelocationsMappingsInputFile("dyn-rel-maps", cl::desc("Specify the csv that contains mappings of relocation section to function names"), cl::value_desc("filename"));
 
+
+cl::opt<std::string> TaintAnalysisFile("taint-json-file", cl::desc("Specify where to store the taint analysis output as JSON file"), cl::value_desc("filename"));
+
 // cl::opt<int> MaxSteps("backward-upper-bound", cl::desc("Specify the upper bound of the reiteration of backward propagation"),  cl::Required);
 
 static RegisterPass<BackwardPropagationPass> Y("revng-backward-prop", "Analyze function reached by vulnerable points and propagate input to callers (1-step)",
@@ -240,8 +243,48 @@ std::vector<Function*> BackwardPropagationPass::findCallersInCG(Function *F) {
 	return res;
 }
 
+json::Object BackwardPropagationPass::buildTaintJSON() {
+	json::Object res;
+	for (auto P: taintAnalysis) {
+		Function* f = std::get<0>(P);
+		auto mfArray = std::get<1>(P);
+		json::ObjectKey funKey(f->getName());
+		json::Array objVal;
+		for ( auto mf : mfArray) {
+			json::Object MFobj;
+			MFobj.try_emplace("inputFun", json::Value(std::get<0>(mf)));
+			MFobj.try_emplace("argPos", json::Value(std::get<1>(mf)));
+			MFobj.try_emplace("argName", json::Value(std::get<2>(mf)));
+			objVal.push_back(std::move(MFobj));
+		}
+		res.try_emplace(funKey, std::move(objVal));
+	}
+	return res;
+
+}
+
 bool BackwardPropagationPass::doFinalization(Module &M) {
 	printTaintAnalysis();
+
+	json::ObjectKey taintKey("analysisStatistics");
+	json::Object stats;
+	if (AreStatisticsEnabled())
+	{
+		auto Stats = GetStatistics();
+		for( auto Stat : Stats) {
+			stats.try_emplace(std::get<0>(Stat), json::Value(std::get<1>(Stat)));
+		}
+		AnalysisOutputJSON->try_emplace(std::move(statsKey), std::move(stats));
+	}
+	json::Value valuewrp(std::move(*AnalysisOutputJSON));
+	std::error_code FileError;
+	StringRef FileName( AnalysisOutputFilename.c_str());
+	raw_fd_ostream Output(FileName, FileError, sys::fs::OpenFlags::OF_None);
+	if (!FileError)  {
+		Output << valuewrp;
+	}
+
+
 	return false;
 }
 
