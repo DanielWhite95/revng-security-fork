@@ -266,25 +266,19 @@ json::Object BackwardPropagationPass::buildTaintJSON() {
 bool BackwardPropagationPass::doFinalization(Module &M) {
 	printTaintAnalysis();
 
-	json::ObjectKey taintKey("analysisStatistics");
-	json::Object stats;
-	if (AreStatisticsEnabled())
-	{
-		auto Stats = GetStatistics();
-		for( auto Stat : Stats) {
-			stats.try_emplace(std::get<0>(Stat), json::Value(std::get<1>(Stat)));
-		}
-		AnalysisOutputJSON->try_emplace(std::move(statsKey), std::move(stats));
-	}
-	json::Value valuewrp(std::move(*AnalysisOutputJSON));
+	json::Object output;
+	json::ObjectKey taintKey("taintAnalysis");
+	json::Object taintObj = buildTaintJSON();
+	output.try_emplace(taintKey, std::move(taintObj);
+	json::Value valuewrp(output);
 	std::error_code FileError;
-	StringRef FileName( AnalysisOutputFilename.c_str());
+	StringRef FileName( TaintAnalysisFile.c_str());
 	raw_fd_ostream Output(FileName, FileError, sys::fs::OpenFlags::OF_None);
 	if (!FileError)  {
 		Output << valuewrp;
+	} else {
+		get_print_stream(3) << "ERROR!!! Error while opening taint analysis file " << TaintAnalysisFile << "!!\n";
 	}
-
-
 	return false;
 }
 
