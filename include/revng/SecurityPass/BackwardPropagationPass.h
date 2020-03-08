@@ -119,6 +119,7 @@ namespace revng {
 		unsigned int TotalVarChains;
                 unsigned int TotalStores;
 		RevngFunctionScraper rgScraper;
+
 	};
 
 
@@ -160,13 +161,14 @@ namespace revng {
 		MarkedFunInfo getReachedParamIndex(Function &F, const Value* ); // Return -1 i
 		MarkedFunInfo isReturnedByFun(Function &F, const Value*); // traverse backward de-chains
 		const Value* getInputValue(Function &F, MarkedFunInfo& mf);
-                void markCaller(Function* caller,  int argPos);
-		void markInputFunctions(Module &M);
+                void markInputFunctions(Module &M);
 		void markInputFunction(Function* F);
-		void markPassFunction(Function* F, bool);
+		void markPassFunction(Function* F, bool, MarkedFunInfo &mfInfo);
 		void parseInputFiles(Module &M);
 		std::vector<Function*> findCallersInCG(Function *F);
 		Function* searchFunctionByAddress(Module &M, std::string address);
+		void printTaintAnalysis();
+		json::Object buildTaintJSON();
 
 		// Check if the values is a function argument and returns its index,
 		// otherwise returns a negative number
@@ -182,6 +184,8 @@ namespace revng {
 		void printNextCallers();
 
 		bool addMarkedFunction(Function *F, int argIndex, std::string argName, std::map<Function*,MarkedFunInfo>* );
+
+		std::map<Function*, std::vector<MarkedFunInfo>> taintAnalysis;
   };
 
 

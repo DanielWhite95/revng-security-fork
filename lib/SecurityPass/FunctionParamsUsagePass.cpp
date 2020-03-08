@@ -384,16 +384,15 @@ json::Object FunctionParamsUsagePass::toJSON() {
 }
 
 void FunctionParamsUsagePass::findRiskyStores() {
-	const Value* GV = nullptr;
+	const Value* V = nullptr;
 	for(VariableFlow VF: currentVarsFlows) {
-		GV = std::get<0>(VF);
+		V = std::get<0>(VF);
 		for (auto DUChain : std::get<1>(VF)) {
 			for(auto DU : DUChain) {
 				const User* U = std::get<0>(DU);
 				if(isaRiskyStore(DU)) {
 					if(!(containsRiskyStore(currentRiskyStores, dyn_cast<StoreInst>(U)))) {
-						RiskyStore tempRiskyStore ( cast<Value>(GV), dyn_cast<StoreInst>(U) );
-
+						RiskyStore tempRiskyStore ( cast<Value>(V), dyn_cast<StoreInst>(U) );
 						currentRiskyStores.push_back(tempRiskyStore);
 						TotalStores++;
 					}
@@ -401,8 +400,6 @@ void FunctionParamsUsagePass::findRiskyStores() {
 			}
 		}
 	}
-
-	const Value* V = nullptr;
 	for(StackVarFlow SVF: currentStackVarsFlows) {
 		V = std::get<0>(SVF)->getValue();
 		for (auto DUChain : std::get<1>(SVF)) {
@@ -430,7 +427,6 @@ bool FunctionParamsUsagePass::isaRiskyStore(const DefUse &DU) const {
 			return true;
 	}
 	return false;
-
 }
 
 bool FunctionParamsUsagePass::containsRiskyStore(std::vector<RiskyStore>& vector, const StoreInst* store) const {
@@ -444,7 +440,6 @@ bool FunctionParamsUsagePass::containsRiskyStore(std::vector<RiskyStore>& vector
 }
 
 void FunctionParamsUsagePass::dumpAnalysis(raw_fd_ostream &FOS, Function &F) const {
-
 	FOS << "Parameters analysis for " << F.getName() << ":\n";
 	unsigned int i= 0;
 	if(VerboseFPAnalysis) {
@@ -474,7 +469,6 @@ void FunctionParamsUsagePass::dumpAnalysis(raw_fd_ostream &FOS, Function &F) con
 				}
 			}
 		}
-
 		if(currentStackVarsFlows.empty()) {
 			FOS << " No parameters pushed on stack\n";
 		} else {
@@ -511,7 +505,6 @@ void FunctionParamsUsagePass::dumpAnalysis(raw_fd_ostream &FOS, Function &F) con
 		}
 
 	}
-
 	if(currentRiskyStores.empty()) {
 		FOS << " No risky stores found\n";
 	} else {

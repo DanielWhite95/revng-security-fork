@@ -10,6 +10,9 @@ cl::opt<std::string> MarkedFunctionsInputFile("input-functions-csv", cl::desc("S
 
 cl::opt<std::string> RelocationsMappingsInputFile("dyn-rel-maps", cl::desc("Specify the csv that contains mappings of relocation section to function names"), cl::value_desc("filename"));
 
+
+cl::opt<std::string> TaintAnalysisFile("taint-json-file", cl::desc("Specify where to store the taint analysis output as JSON file"), cl::value_desc("filename"));
+
 // cl::opt<int> MaxSteps("backward-upper-bound", cl::desc("Specify the upper bound of the reiteration of backward propagation"),  cl::Required);
 
 static RegisterPass<BackwardPropagationPass> Y("revng-backward-prop", "Analyze function reached by vulnerable points and propagate input to callers (1-step)",
@@ -83,18 +86,17 @@ bool BackwardPropagationPass::doInitialization(Module &M) {
 	markInputFunctions(M);
 	nextCallers = new std::map<Function*, MarkedFunInfo>();
 	for(auto P : markedFunctions) {
-		Function *F = std::get<0>(P);
+		Function *inF = std::get<0>(P);
 		MarkedFunInfo &mfInfo = std::get<1>(P) ;
-		if( F == nullptr) {
-			get_print_stream(3) << "ERROR! Null function in markedFunctions inside do initialization!!!\n";
+		if( inF == nullptr) {
+			get_print_stream(3) << "ERROR! Null function in marked Functions inside do initialization!!!\n";
 			continue;
 		}
-		auto callers = findCallersInCG(F);
+		auto callers = findCallersInCG(inF);
 		for( Function* F: callers ) {
 			nextCallers->emplace(F, mfInfo);
-			markPassFunction(F, true);
+			markPassFunction(F, true, mfInfo);
 		}
-
 	}
 	printMarkedFunctions();
 	printNextCallers();
@@ -241,9 +243,42 @@ std::vector<Function*> BackwardPropagationPass::findCallersInCG(Function *F) {
 	return res;
 }
 
+json::Object BackwardPropagationPass::buildTaintJSON() {
+	json::Object res;
+	for (auto P: taintAnalysis) {
+		Function* f = std::get<0>(P);
+		auto mfArray = std::get<1>(P);
+		json::ObjectKey funKey(f->getName());
+		json::Array objVal;
+		for ( auto mf : mfArray) {
+			json::Object MFobj;
+			MFobj.try_emplace("inputFun", json::Value(std::get<0>(mf)));
+			MFobj.try_emplace("argPos", json::Value(std::get<1>(mf)));
+			MFobj.try_emplace("argName", json::Value(std::get<2>(mf)));
+			objVal.push_back(std::move(MFobj));
+		}
+		res.try_emplace(funKey, std::move(objVal));
+	}
+	return res;
+
+}
+
 bool BackwardPropagationPass::doFinalization(Module &M) {
-	printMarkedFunctions();
-	printNextCallers();
+	printTaintAnalysis();
+
+	json::Object output;
+	json::ObjectKey taintKey("taintAnalysis");
+	json::Object taintObj = buildTaintJSON();
+	output.try_emplace(taintKey, std::move(taintObj));
+	json::Value valuewrp(std::move(output));
+	std::error_code FileError;
+	StringRef FileName( TaintAnalysisFile.c_str());
+	raw_fd_ostream Output(FileName, FileError, sys::fs::OpenFlags::OF_None);
+	if (!FileError)  {
+		Output << valuewrp;
+	} else {
+		get_print_stream(3) << "ERROR!!! Error while opening taint analysis file " << TaintAnalysisFile << "!!\n";
+	}
 	return false;
 }
 
@@ -395,10 +430,6 @@ const Value*  BackwardPropagationPass::searchForReturnRegister(Function &F, cons
 		}
 	} while( itBB != F.end() );
 	return nullptr;
-
-
-
-
 }
 
 
@@ -417,10 +448,6 @@ int BackwardPropagationPass::getArgIndex(Function &F, const Value* V) {
 	return -1;
 }
 
-void BackwardPropagationPass::markCaller(Function* caller, int argPos) {
-	markPassFunction(caller, true);
-}
-
 
 void BackwardPropagationPass::markInputFunction(Function* F) {
 	LLVMContext& C = F->getContext();
@@ -434,13 +461,20 @@ void BackwardPropagationPass::markInputFunction(Function* F) {
 }
 
 
-void BackwardPropagationPass::markPassFunction(Function* F, bool status) {
+void BackwardPropagationPass::markPassFunction(Function* F, bool status, MarkedFunInfo &mfInfo) {
 	LLVMContext& C = F->getContext();
       	MDNode* N = nullptr;
 	std::string formattedStatus =  formatv("{0}", status);
 	N = MDNode::get(C, MDString::get(C, formattedStatus));
 	F->setMetadata(REVNG_SECURITY_MARKED_MD, N);
 	MarkedFunctions++;
+	auto searchIt = taintAnalysis.find(F);
+	if (searchIt == taintAnalysis.end() ) {
+		std::vector<MarkedFunInfo> newValue = { mfInfo };
+		taintAnalysis.emplace(F, newValue);
+	} else {
+		searchIt->second.push_back(mfInfo);
+	}
 }
 
 const Value* BackwardPropagationPass::getInputValue(Function &F, MarkedFunInfo &mfInfo) {
@@ -534,7 +568,7 @@ bool BackwardPropagationPass::addMarkedFunction(Function *markedF, int argIndex,
 				continue;
 			}
 			newCallers->emplace(newCaller, newInfo);
-			markPassFunction(newCaller, true);
+			markPassFunction(newCaller, true, newInfo);
 		}
 	}
 	return true;
@@ -568,6 +602,27 @@ void BackwardPropagationPass::printNextCallers() {
 
 	}
 }
+
+void BackwardPropagationPass::printTaintAnalysis() {
+
+	// // debug
+	get_print_stream(3) << "Taint analysis result: \n";
+	for(auto P : taintAnalysis) {
+		Function* f = std::get<0>(P);
+		get_print_stream(3) << "- " << f->getName() << " reached by: ";
+		for (auto mf : std::get<1>(P)) {
+			get_print_stream(3) << " <"
+					    << std::get<0>(mf)
+				            << ","
+				            << std::get<1>(mf)
+				            << ","
+				            << std::get<2>(mf)
+				            << ">,";
+		}
+		get_print_stream(3) << "\n";
+	}
+}
+
 
 
 FunctionScraper::FunctionScraper() {

@@ -26,6 +26,7 @@
 #define REVNG_INPUT_NAME_MD "revng.dm.inputgen.called" // STRING
 #define REVNG_INPUT_POS_MD "revng.dm.inputgen.argpos" // STRING
 #define REVNG_INPUT_TOANALYZE_MD "revng.dm.inputgen.toanalyze" // BOOLEAN
+#define REVNG_SECURITY_MARKED_CALLERS_MD "revng.dm.inputgen.callers" // list of strings
 #define REVNG_SECURITY_MARKED_MD "revng.dm.inputgen.mark" // BOOL
 
 #define MAX_PASS_VERBOSITY_LEVEL 3
