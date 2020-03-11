@@ -62,7 +62,7 @@ namespace revng {
 		json::Object toJSON() const;
 	private:
 		int findAddress(const Instruction* I);
-	}
+	};
 
 	using VulnerableLoopItem = std::pair<std::vector<const Instruction*>, std::vector<const RiskyStore*>>;
 

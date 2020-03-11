@@ -146,7 +146,6 @@ int RiskyStore::findAddress(const Instruction* I) {
 	}
 	return 0;
 }
-};
 
 json::Object RiskyStore::toJSON() const {
 	json::Object stObj;
