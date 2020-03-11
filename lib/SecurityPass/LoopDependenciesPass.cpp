@@ -279,7 +279,7 @@ json::Object LoopDependenciesPass::toJSON() const {
 		json::Array rsVal;
 		get_print_stream(2) << "Dumping " << std::get<1>(*vlItem).size() << " branches for "<< std::get<0>(VL) << " ...\n";
 		for( auto RS : std::get<1>(*vlItem)) {
-			json::Object& stObj = riskyStoreToJSON(RS);
+			json::Object& stObj = RS.toJSON();
 			rsVal.push_back(json::Value(std::move(stObj)));
 		}
 		vlObj.try_emplace(std::move(rsKey), std::move(rsVal));
