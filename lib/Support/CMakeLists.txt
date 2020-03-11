@@ -9,7 +9,9 @@ revng_add_library_internal(revngSupport SHARED
   DebugHelper.cpp
   ExampleAnalysis.cpp
   IRHelpers.cpp
-  Statistics.cpp)
+  Statistics.cpp
+  SecurityDefinitions.cpp
+  )
 
 llvm_map_components_to_libnames(LLVM_SUPPORT Support)
 

@@ -21,6 +21,10 @@ cl::opt<bool> UseDebugSymbols("use-debug-symbols",
                                        "informations, if available"),
                               cl::cat(MainCategory));
 
+cl::opt<bool> OnlyMarkedFunctions("only-marked-funs",
+				  cl::desc("Analyze only functions reached by inputs"),
+				  cl::cat(MainCategory));
+
 std::ostream &pathToStream(const std::string &Path, std::ofstream &File) {
   if (Path[0] == '-' && Path[1] == '\0') {
     return std::cout;

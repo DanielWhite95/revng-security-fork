@@ -279,24 +279,7 @@ json::Object LoopDependenciesPass::toJSON() const {
 		json::Array rsVal;
 		get_print_stream(2) << "Dumping " << std::get<1>(*vlItem).size() << " branches for "<< std::get<0>(VL) << " ...\n";
 		for( auto RS : std::get<1>(*vlItem)) {
-			json::Object stObj;
-			const Value* VAL = RS->getPointedValue();
-			const StoreInst* ST = RS->getStoreInst();
-			const int origAddr = RS->getOriginalAddress();
-			const int offset = RS->getInstOffset();
-			assert(ST != nullptr && VAL != nullptr && "Null risky store detected");
-			std::string serializedST;
-			serializedST = formatv("{0}",  *VAL);
-			json::Value stVal(serializedST);
-			stObj.try_emplace("value", std::move(stVal));
-			serializedST = formatv("{0}",  *ST);
-			json::Value stInst(serializedST);
-			stObj.try_emplace("storeInstruction", std::move(stInst));
-			serializedST = formatv("{0:x}",  origAddr);
-		        json::Value stAddr(serializedST);
-			stObj.try_emplace("binaryAddress", std::move(stAddr));
-			json::Value instOffset(offset);
-			stObj.try_emplace("instructionOffset", std::move(instOffset));
+			json::Object& stObj = riskyStoreToJSON(RS);
 			rsVal.push_back(json::Value(std::move(stObj)));
 		}
 		vlObj.try_emplace(std::move(rsKey), std::move(rsVal));

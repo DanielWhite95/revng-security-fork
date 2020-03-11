@@ -38,9 +38,10 @@ STATISTIC(InputFunctions, "Number of input functions (or input propagator functi
 #include <vector>
 
 // LOCAL LIBERARIES
-#include "CommonDefinitions.h"
+#include "revng/Support/SecurityDefinitions.h"
+#include "revng/Support/CommandLine.h"
+
 #include "MaxStepsPass.h"
-// #include "FunctionScraper.h"
 
 
 

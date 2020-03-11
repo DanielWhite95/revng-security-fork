@@ -29,7 +29,8 @@ STATISTIC(OverallFunctions, "Number of overall functions analyzed");
 #include <ostream>
 #include <vector>
 #include <map>
-#include "CommonDefinitions.h"
+#include "revng/Support/SecurityDefinitions.h"
+#include "revng/Support/CommandLine.h"
 #include "RevngFunctionParamsPass.h"
 #include "FunctionParamsUsagePass.h"
 

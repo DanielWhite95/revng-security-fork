@@ -18,4 +18,7 @@ extern llvm::cl::opt<bool> UseDebugSymbols;
 
 std::ostream &pathToStream(const std::string &Path, std::ofstream &File);
 
+// Security Options
+extern llvm::cl::opt<bool> OnlyMarkedFunctions;
+
 #endif // COMMANDLINE_H
