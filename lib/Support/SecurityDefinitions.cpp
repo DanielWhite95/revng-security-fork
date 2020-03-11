@@ -183,7 +183,7 @@ json::Object RiskyStore::toJSON() const {
 }
 
 void RiskyStore::attachValueInfo(LazyValueInfo& LVI) {
-	BasicBlock *rBB = storeInst->getParent();
-	pointedRange = LVI.getConstantRange(storeInst->getPointerOperand(), rBB, store);
-	valueRange = LVI.getConstantRange(storeInst->getValueOperand(), rBB, store);
+	BasicBlock *rBB = store->getParent();
+	pointedRange = LVI.getConstantRange(store->getPointerOperand(), rBB, store);
+	valueRange = LVI.getConstantRange(store->getValueOperand(), rBB, store);
 }
