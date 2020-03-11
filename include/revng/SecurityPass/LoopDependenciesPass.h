@@ -65,7 +65,6 @@ namespace revng {
 		  return counter;
 	  }
 
-
   private:
     std::vector<const Instruction*> candidateBranches;
     std::map<const StringRef, VulnerableLoopItem*> vulnerableLoops;

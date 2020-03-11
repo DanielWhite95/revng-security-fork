@@ -167,5 +167,23 @@ json::Object RiskyStore::toJSON() const {
 	stObj.try_emplace("binaryAddress", std::move(stAddr));
 	json::Value instOffset(offset);
 	stObj.try_emplace("instructionOffset", std::move(instOffset));
+	if(valueRange) {
+		raw_string_ostream stringStream;
+		valueRange->print(stringStream);
+		json::Value vRange(stringStream.str());
+		stObj.try_emplace("valueRange", std::move(vRange));
+	}
+	if(pointedRange) {
+		raw_string_ostream stringStream;
+		valueRange->print(stringStream);
+		json::Value vRange(stringStream.str());
+		stObj.try_emplace("valueRange", std::move(vRange));
+	}
 	return stObj;
+}
+
+void RiskyStore::attachValueInfo(LazyValueInfo& LVI) {
+	BasicBlock *rBB = storeInst->getParent();
+	pointedRange = LVI.getConstantRange(storeInst->getPointerOperand(), rBB, store);
+	valueRange = LVI.getConstantRange(storeInst->getValueOperand(), rBB, store);
 }

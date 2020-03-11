@@ -53,12 +53,14 @@ namespace revng {
 		int instOffset = 0;
 		const Value* pointedValue;
 		const StoreInst* store;
-
+		const ConstantRange* pointedRange;
+		const ConstantRange* valueRange;
 		const uint64_t getOriginalAddress() const {return originalBinaryAddress; };
  	 	const Value* getPointedValue() const {return pointedValue; };
 		const StoreInst* getStoreInst() const { return store; };
 		const int getInstOffset() const { return instOffset; }
 		json::Object toJSON() const;
+		void attachValueInfo(LazyValueInfo&);
 	private:
 		int findAddress(const Instruction* I);
 	};
