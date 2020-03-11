@@ -1,5 +1,5 @@
-#ifndef COMMON_DEFINITIONS_H
-#define COMMON_DEFINITIONS_H
+#ifndef SECURITY_DEFINITIONS_H
+#define SECURITY_DEFINITIONS_H
 
 #include "llvm/Pass.h"
 #include "llvm/IR/PassManager.h"
@@ -32,7 +32,6 @@
 #define MAX_PASS_VERBOSITY_LEVEL 3
 
 using namespace llvm;
-
 
 namespace revng {
 	using DefUse = std::pair<const User*, const Value*>;
@@ -119,4 +118,4 @@ namespace revng {
 
 
 
-#endif // COMMON_DEFINITIONS_H
+#endif // SECURITY_DEFINITIONS_H

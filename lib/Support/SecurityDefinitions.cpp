@@ -4,7 +4,7 @@ using namespace llvm;
 using namespace revng;
 
 
-raw_ostream& get_print_stream(int verbosity) {
+static raw_ostream& get_print_stream(int verbosity) {
 	static raw_null_ostream* nullStream = new raw_null_ostream();
 	if( verbosity <= MAX_PASS_VERBOSITY_LEVEL )
 		return errs();
@@ -15,7 +15,7 @@ raw_ostream& get_print_stream(int verbosity) {
 
 }
 
-bool isaSkippedFunction(const Function*F) {
+static bool isaSkippedFunction(const Function*F) {
 	if( F->getName().startswith("bb.__")) {
 		return true;
 	}
@@ -29,7 +29,7 @@ bool isaSkippedFunction(const Function*F) {
 	}
 }
 
-MDString* getMDString(const Function* F, std::string mdname) {
+static MDString* getMDString(const Function* F, std::string mdname) {
 	assert( F!=nullptr && "Passed a nullptr to getMarkString" );
 	MDNode* functionMD = F->getMetadata(mdname);
 	if (functionMD) {
@@ -40,7 +40,7 @@ MDString* getMDString(const Function* F, std::string mdname) {
 
 }
 
-bool isMarked(const Function* F)  {
+static bool isMarked(const Function* F)  {
 	MDString* fMD = getMDString(F, REVNG_SECURITY_MARKED_MD);
 	if(fMD) {
 		if(fMD->getString().compare("true") == 0) {
@@ -52,7 +52,7 @@ bool isMarked(const Function* F)  {
 	return false;
 }
 
-bool isInputFunction(const Function* F)  {
+static bool isInputFunction(const Function* F)  {
 	MDString* fMD = getMDString(F, REVNG_INPUT_MD);
 	if(fMD) {
 		if(fMD->getString().compare("true") == 0) {
@@ -65,7 +65,7 @@ bool isInputFunction(const Function* F)  {
 	return false;
 }
 
-bool isInDefUseChain(Function &F, const Value* startVal, const Value* V) {
+static bool isInDefUseChain(Function &F, const Value* startVal, const Value* V) {
 	if(startVal == V)
 		return true;
 	if(startVal == nullptr || V == nullptr)
