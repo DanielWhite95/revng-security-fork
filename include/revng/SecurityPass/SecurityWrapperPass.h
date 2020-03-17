@@ -27,7 +27,10 @@
 #include <ostream>
 #include <vector>
 #include <map>
-#include "CommonDefinitions.h"
+
+#include "revng/Support/CommandLine.h"
+#include "revng/Support/SecurityDefinitions.h"
+
 #include "LoopDependenciesPass.h"
 #include "FunctionParamsUsagePass.h"
 #include "RevngFunctionParamsPass.h"

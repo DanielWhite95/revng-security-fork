@@ -24,18 +24,19 @@ STATISTIC(TotalStores, "Number of stores depending on params found");
 #include "llvm/IR/ValueSymbolTable.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/JSON.h"
-#include <ostream>
-#include <vector>
-#include "RevngFunctionParamsPass.h"
-#include "CommonDefinitions.h"
-#include "RevngFunctionParamsPass.h"
 #include "llvm/Analysis/LazyValueInfo.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FileSystem.h"
+
+#include <ostream>
+#include <vector>
 #include <queue>
 
+#include "revng/Support/SecurityDefinitions.h"
+#include "revng/Support/CommandLine.h"
+#include "RevngFunctionParamsPass.h"
 
 
 

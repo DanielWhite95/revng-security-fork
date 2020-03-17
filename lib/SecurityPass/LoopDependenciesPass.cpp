@@ -47,7 +47,7 @@ bool LoopDependenciesPass::runOnFunction(Function &F) {
 	  LDPSkippedFunctions++;
 	  errs() << "Not a function in the scope of analysis, skipping...\n" ;
 	  return false;
-	}if (!isMarked(&F) && only_marked_funs) {
+	}if (!isMarked(&F) && OnlyMarkedFunctions) {
 		LDPSkippedFunctions++;
 		errs() << "Function not reached by any input, skipping analysis ...\n";
 		return false;
@@ -85,6 +85,7 @@ bool LoopDependenciesPass::runOnFunction(Function &F) {
 }
 
 bool LoopDependenciesPass::analyzeLoop(const Loop* L, FunctionParamsUsagePass& FPU, VulnerableLoopItem& vlItem) {
+	LazyValueInfo &LVI = getAnalysis<LazyValueInfoWrapperPass>().getLVI();
 
   BasicBlock* lHeader = nullptr;
   SmallVector<BasicBlock*, 6> loopLatches;
@@ -119,6 +120,7 @@ bool LoopDependenciesPass::analyzeLoop(const Loop* L, FunctionParamsUsagePass& F
 				  R.getStoreInst()->print(get_print_stream(3));
 				  get_print_stream(3) << " is inside the Basic block!\n";
 				  RiskyStore *clonedStore = new RiskyStore(R);
+				  clonedStore->attachValueInfo(LVI);
 				  riskyStores.push_back(clonedStore);
 				  loopStores++;
 				  FilteredStores++;
@@ -191,6 +193,7 @@ bool LoopDependenciesPass::analyzeLoopCondition(const CmpInst* condition, Functi
 
 void LoopDependenciesPass::getAnalysisUsage(AnalysisUsage &AU) const {
 	AU.addRequired<LoopInfoWrapperPass>();
+	AU.addRequired<LazyValueInfoWrapperPass>();
 	AU.addRequired<FunctionParamsUsagePass>();
 	AU.addRequired<RevngFunctionParamsPass>();
 	AU.setPreservesAll();
@@ -279,24 +282,7 @@ json::Object LoopDependenciesPass::toJSON() const {
 		json::Array rsVal;
 		get_print_stream(2) << "Dumping " << std::get<1>(*vlItem).size() << " branches for "<< std::get<0>(VL) << " ...\n";
 		for( auto RS : std::get<1>(*vlItem)) {
-			json::Object stObj;
-			const Value* VAL = RS->getPointedValue();
-			const StoreInst* ST = RS->getStoreInst();
-			const int origAddr = RS->getOriginalAddress();
-			const int offset = RS->getInstOffset();
-			assert(ST != nullptr && VAL != nullptr && "Null risky store detected");
-			std::string serializedST;
-			serializedST = formatv("{0}",  *VAL);
-			json::Value stVal(serializedST);
-			stObj.try_emplace("value", std::move(stVal));
-			serializedST = formatv("{0}",  *ST);
-			json::Value stInst(serializedST);
-			stObj.try_emplace("storeInstruction", std::move(stInst));
-			serializedST = formatv("{0:x}",  origAddr);
-		        json::Value stAddr(serializedST);
-			stObj.try_emplace("binaryAddress", std::move(stAddr));
-			json::Value instOffset(offset);
-			stObj.try_emplace("instructionOffset", std::move(instOffset));
+			json::Object stObj (RS->toJSON());
 			rsVal.push_back(json::Value(std::move(stObj)));
 		}
 		vlObj.try_emplace(std::move(rsKey), std::move(rsVal));

@@ -18,7 +18,9 @@
 #include "llvm/Support/Regex.h"
 #include <ostream>
 #include <vector>
-#include "CommonDefinitions.h"
+
+#include "revng/Support/SecurityDefinitions.h"
+#include "revng/Support/CommandLine.h"
 
 using namespace llvm;
 

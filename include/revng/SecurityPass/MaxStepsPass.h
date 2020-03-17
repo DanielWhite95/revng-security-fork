@@ -27,7 +27,9 @@ STATISTIC(MaxLength, "Max length of branch or loop found");
 #include <vector>
 #include <deque>
 #include <algorithm>
-#include "CommonDefinitions.h"
+
+#include "revng/Support/SecurityDefinitions.h"
+#include "revng/Support/CommandLine.h"
 
 
 using namespace llvm;
