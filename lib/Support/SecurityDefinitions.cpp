@@ -103,7 +103,7 @@ bool revng::isInDefUseChain(Function &F, const Value* startVal, const Value* V) 
 }
 
 
-RiskyStore::RiskyStore(const Value* V, const StoreInst* S) {
+RiskyStore::RiskyStore(const Value* V,const StoreInst* S) {
 	pointedValue = V;
 	store = S;
 	originalBinaryAddress = findAddress(dyn_cast<Instruction>(S));
@@ -111,9 +111,9 @@ RiskyStore::RiskyStore(const Value* V, const StoreInst* S) {
 
 
 RiskyStore::RiskyStore(const RiskyStore& copy) {
-	pointedValue = copy.getPointedValue();
-	store = copy.getStoreInst();
-	originalBinaryAddress = copy.getOriginalAddress();
+	pointedValue = copy.pointedValue;
+	store = copy.store;
+	originalBinaryAddress = copy.originalBinaryAddress;
 }
 
 
@@ -154,6 +154,7 @@ json::Object RiskyStore::toJSON() const {
 	const StoreInst* ST = getStoreInst();
 	const int origAddr = getOriginalAddress();
 	const int offset = getInstOffset();
+	std::string tempstring;
 	assert(ST != nullptr && VAL != nullptr && "Null risky store detected");
 	std::string serializedST;
 	serializedST = formatv("{0}",  *VAL);
@@ -167,23 +168,39 @@ json::Object RiskyStore::toJSON() const {
 	stObj.try_emplace("binaryAddress", std::move(stAddr));
 	json::Value instOffset(offset);
 	stObj.try_emplace("instructionOffset", std::move(instOffset));
+	raw_string_ostream stringStream(tempstring);
 	if(valueRange) {
-		raw_string_ostream stringStream;
 		valueRange->print(stringStream);
 		json::Value vRange(stringStream.str());
+		stObj.try_emplace("valueRange", std::move(vRange));
+	} else {
+		json::Value vRange("unknown");
 		stObj.try_emplace("valueRange", std::move(vRange));
 	}
+	tempstring.clear();
 	if(pointedRange) {
-		raw_string_ostream stringStream;
 		valueRange->print(stringStream);
-		json::Value vRange(stringStream.str());
-		stObj.try_emplace("valueRange", std::move(vRange));
+		json::Value pRange(stringStream.str());
+		stObj.try_emplace("valueRange", std::move(pRange));
+	} else {
+		json::Value pRange(stringStream.str());
+		stObj.try_emplace("valueRange", std::move(pRange));
 	}
 	return stObj;
 }
 
 void RiskyStore::attachValueInfo(LazyValueInfo& LVI) {
-	BasicBlock *rBB = store->getParent();
-	pointedRange = LVI.getConstantRange(store->getPointerOperand(), rBB, store);
-	valueRange = LVI.getConstantRange(store->getValueOperand(), rBB, store);
+	const BasicBlock *rBB = store->getParent();
+	if (store->getPointerOperand()->getType()->isIntegerTy()) {
+        auto tp = LVI.getConstantRange((Value*) store->getPointerOperand(),
+				       (BasicBlock*) rBB,
+				       (Instruction*) store); // force non-const type for LVI
+	pointedRange = &tp;
+	}
+	if (store->getValueOperand()->getType()->isIntegerTy()) {
+        auto tv = LVI.getConstantRange((Value*) store->getValueOperand(),
+				       (BasicBlock*) rBB,
+				       (Instruction*) store); // force non-const type for LVI
+	valueRange = &tv;
+	}
 }

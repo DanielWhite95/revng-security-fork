@@ -85,7 +85,7 @@ bool LoopDependenciesPass::runOnFunction(Function &F) {
 }
 
 bool LoopDependenciesPass::analyzeLoop(const Loop* L, FunctionParamsUsagePass& FPU, VulnerableLoopItem& vlItem) {
-	LazyValueInfo &LVI = getAnalysis<LazyValueInfoWrapperPass>().getLVi();
+	LazyValueInfo &LVI = getAnalysis<LazyValueInfoWrapperPass>().getLVI();
 
   BasicBlock* lHeader = nullptr;
   SmallVector<BasicBlock*, 6> loopLatches;
@@ -120,7 +120,7 @@ bool LoopDependenciesPass::analyzeLoop(const Loop* L, FunctionParamsUsagePass& F
 				  R.getStoreInst()->print(get_print_stream(3));
 				  get_print_stream(3) << " is inside the Basic block!\n";
 				  RiskyStore *clonedStore = new RiskyStore(R);
-				  clonedStore->attacValueInfo(LVI);
+				  clonedStore->attachValueInfo(LVI);
 				  riskyStores.push_back(clonedStore);
 				  loopStores++;
 				  FilteredStores++;
