@@ -4,49 +4,21 @@ Purpose
 
 `revng` is a static binary translator. Given a input ELF binary for one of the
 supported architectures (currently MIPS, ARM and x86-64) it will analyze it and
-emit an equivalent LLVM IR. To do so, `revng` employs the QEMU intermediate
-representation (a series of TCG instructions) and then translates them to LLVM
-IR.
+emit an equivalent LLVM IR. It can be also used for static binary analysis. This
+projects aims at adding vulnerability discovery to revng using such feature.
 
-************
-How to build
-************
+*******
+Build
+*******
 
-`revng` employs CMake as a build system. The build system will try to
-automatically detect the QEMU installation and the GCC toolchains require to
-build the test binaries.
+The suggested method to build this fork is to use `revng` orchestra repo.
+Once the repo has been cloned install revng in the suggested way inside the repo README.
+After that delete the revng directory inside the orchestra repo and clone this fork to replace it.
 
-If everything is in standard locations, you can just run::
+```
+git clone <revng-security-fork-repo> revng
+```
 
-    mkdir build/
-    cd build/
-    cmake ..
-    make -j$(nproc)
-    make install
-
-For further build options and more advanced configurations see
-docs/BuildSystem.rst (TODO: reference).
-
-To run the test suite simply run::
-
-    make test
-
-***********
-Example run
-***********
-
-The simplest possible example consists in the following::
-
-    cd build
-    cat > hello.c <<EOF
-    #include <stdio.h>
-
-    int main(int argc, char *argv[]) {
-      printf("Hello, world!\n");
-    }
-    EOF
-    armv7a-hardfloat-linux-uclibceabi-gcc -static hello.c -o hello.arm
-    ./translate hello.arm
-    # ...
-    ./hello.arm.translated
-    Hello, world!
+**Be sure to checkout on the master branch!!**
+After that re-issue the command `make install-revng` from the orchestra directory and now you should be able
+to execute revng security analyses. **Always source the orchestra environment before launching the analyses**
