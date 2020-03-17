@@ -53,8 +53,7 @@ namespace revng {
 		int instOffset = 0;
 		const Value* pointedValue;
 		const StoreInst* store;
-		const ConstantRange* pointedRange;
-		const ConstantRange* valueRange;
+
 		const uint64_t getOriginalAddress() const {return originalBinaryAddress; };
  	 	const Value* getPointedValue() const {return pointedValue; };
 		const StoreInst* getStoreInst() const { return store; };
@@ -63,6 +62,8 @@ namespace revng {
 		void attachValueInfo(LazyValueInfo&);
 	private:
 		int findAddress(const Instruction* I);
+		const ConstantRange* pointedRange;
+		const ConstantRange* valueRange;
 	};
 
 	using VulnerableLoopItem = std::pair<std::vector<const Instruction*>, std::vector<const RiskyStore*>>;
