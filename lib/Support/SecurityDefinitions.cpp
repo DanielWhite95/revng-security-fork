@@ -168,24 +168,34 @@ json::Object RiskyStore::toJSON() const {
 	stObj.try_emplace("binaryAddress", std::move(stAddr));
 	json::Value instOffset(offset);
 	stObj.try_emplace("instructionOffset", std::move(instOffset));
-	raw_string_ostream stringStream(tempstring);
-	if(valueRange) {
-		valueRange->print(stringStream);
-		json::Value vRange(stringStream.str());
-		stObj.try_emplace("valueRange", std::move(vRange));
-	} else {
-		json::Value vRange("unknown");
-		stObj.try_emplace("valueRange", std::move(vRange));
-	}
-	tempstring.clear();
-	if(pointedRange) {
-		valueRange->print(stringStream);
-		json::Value pRange(stringStream.str());
-		stObj.try_emplace("valueRange", std::move(pRange));
-	} else {
-		json::Value pRange(stringStream.str());
-		stObj.try_emplace("valueRange", std::move(pRange));
-	}
+//	if(valueRange) {
+//		if (valueRange->getBitWidth() == 0) {
+//			tempstring = "unknown";
+//		} else {
+//			int64_t low_int = valueRange->getLower().getSExtValue();
+//			int64_t upp_int = valueRange->getUpper().getSExtValue();
+//			tempstring = formatv("<{0},{1}>", low_int, upp_int);
+//		}
+//		json::Value vRange(tempstring);
+//		stObj.try_emplace("valueRange", std::move(vRange));
+//	} else {
+//		json::Value vRange("unknown");
+//		stObj.try_emplace("valueRange", std::move(vRange));
+//	}
+//	if(pointedRange) {
+//		if (pointedRange->getBitWidth() == 0) {
+//			tempstring = "unknown";
+//		} else {
+//			int64_t low_int = pointedRange->getLower().getSExtValue();
+//			int64_t upp_int = pointedRange->getUpper().getSExtValue();
+//			tempstring = formatv("<{0},{1}>", low_int, upp_int);
+//		}
+//		json::Value pRange(tempstring);
+//		stObj.try_emplace("pointedRange", std::move(pRange));
+//	} else {
+//		json::Value pRange("unknown");
+//		stObj.try_emplace("pointedRange", std::move(pRange));
+//	}
 	return stObj;
 }
 
