@@ -15,10 +15,6 @@ function revng_lift_binary {
 	revng  opt -S $ABIED -isolate -enforce-abi -o $2 || (echo "ERROR in lifting process!\n" && exit -1) \
 }
 
-function retdec_lift_binary {
-    retdec-decompiler.py --stop-after bin2llvmir -o $2 $1 || (echo "ERROR in lifting process!\n" && exit -1)
-}
-
 function optimize_lifted {
 	revng opt -S $1 -loop-simplify -o $CANONICAL_LOOPS && \
 	revng opt -S $CANONICAL_LOOPS -mem2reg -o $MEM_TO_REG || (echo "ERROR in lifting process!\n" && exit -1)
@@ -33,23 +29,13 @@ function print_usage {
 	cat <<EOF
 Author: Daniele Marsella <daniele.marsella@mail.polimi.it>
 Revng Security Analysis wrapper script:
-Usage: $0 {--with-retdec|--with-revng} file output_basename
+Usage: $0 file output_basename
 EOF
 }
 
 scan_plt_section $2 $3
 
-if [[ $1 == "--with-retdec" ]]
-then
-    retdec_lift_binary $2 $3
-    mv ${3}.ll $LIFTED
-elif [[ $1 == "--with-revng" ]]
-then
-    revng_lift_binary $2 $LIFTED
-else
-    print_usage
-    exit 1
-fi
+revng_lift_binary $2 $LIFTED
 
 optimize_lifted $LIFTED
 
