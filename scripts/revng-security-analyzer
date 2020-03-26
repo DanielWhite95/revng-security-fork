@@ -27,9 +27,9 @@ Usage: $0 [-m] [-c] [-i input_functions] [-j json_file] binaryfile
         -t taint_json_file      Dump taint analysis JSON to taint_json_file
 
 Result files:
-	- ${RESULT_SECURITY_JSON} 	JSON of the security analysis result
-	- ${RESULT_TAINT_JSON}	 	JSON of the taint analysis result
-        - ${MARKED}			LLVM IR with marked input functions
+	- json_file 		JSON of the security analysis result
+	- taint_json_file 	JSON of the taint analysis result
+        - binaryfile.marked.ll	LLVM IR with marked input functions
 
 EOF
 }
@@ -96,9 +96,16 @@ while getopts "cmi:j:rt:" option; do
 	    ;;
 	\? ) #For invalid option
 	    print_usage
+	    exit -1
 	    ;;
     esac
 done
+
+if [ ! -r $last ]
+then	
+	print_usage 
+	exit -1
+fi
 
 scan_ll $INPUT_FILE
 

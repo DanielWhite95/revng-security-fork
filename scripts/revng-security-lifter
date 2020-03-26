@@ -25,7 +25,7 @@ function optimize_lifted {
 }
 
 function scan_plt_section {
-	${PASS_DIRECTORY}/strip_objdump_plt.sh $1 $2.plt_sec.csv
+	strip_objdump_plt $1 $2.plt_sec.csv
 	ISOLATION_OPTIONAL_FLAGS="-dyn-rel-maps=$2.plt_sec.csv"
 }
 
